@@ -28,7 +28,6 @@ class MovieDetailPresenter {
     }
     
     func downloadDetails(movieId: Int){
-        delegate?.showProgress()
         dispatchGroup.enter()
         getMovieDetail(movieId: movieId)
         dispatchGroup.enter()
@@ -39,12 +38,16 @@ class MovieDetailPresenter {
         getReviewData(movieId: movieId)
         
         dispatchGroup.notify(queue: .main) {
-            self.delegate?.hideProgress()
         }
     }
     
     func getMovieDetail(movieId: Int){
+        defer {
+            self.dispatchGroup.leave()
+        }
+        delegate?.showProgress()
         networkManger.getMovieDetail(id: movieId, data: data) { [weak self] (success, response) in
+            self?.delegate?.hideProgress()
             switch success{
             case .showDataView :
                 if let obj = response{
@@ -56,14 +59,16 @@ class MovieDetailPresenter {
                 break
                 
             }
-            DispatchQueue.main.async {
-                self?.dispatchGroup.leave() 
-            }
         }
     }
     
     func getCastnCrewDetail(movieId: Int){
+        defer {
+            self.dispatchGroup.leave()
+        }
+         delegate?.showProgress()
         networkManger.getCastNcrew(id: movieId, data: data) { [weak self] (success, response) in
+            self?.delegate?.hideProgress()
             switch success{
             case .showDataView :
                 if let obj = response{
@@ -75,14 +80,16 @@ class MovieDetailPresenter {
                 break
                 
             }
-            DispatchQueue.main.async {
-                self?.dispatchGroup.leave()
-            }
         }
     }
     
     func similarMovieDetail(movieId: Int){
+        defer {
+            self.dispatchGroup.leave()
+        }
+        delegate?.showProgress()
         networkManger.getSimilarData(id: movieId, data: data) { [weak self] (success, response) in
+            self?.delegate?.hideProgress()
             switch success{
             case .showDataView :
                 if let obj = response{
@@ -94,14 +101,16 @@ class MovieDetailPresenter {
                 break
                 
             }
-            DispatchQueue.main.async {
-                self?.dispatchGroup.leave()
-            }
         }
     }
     
     func getReviewData(movieId: Int){
+        defer {
+            self.dispatchGroup.leave()
+        }
+        delegate?.showProgress()
         networkManger.getReviewData(id: movieId, data: data) { [weak self] (success, response) in
+            self?.delegate?.hideProgress()
             switch success{
             case .showDataView :
                 if let obj = response{
@@ -112,9 +121,6 @@ class MovieDetailPresenter {
                 self?.delegate?.failedtogetMovieData(message: "No Data Found")
                 break
                 
-            }
-            DispatchQueue.main.async {
-                self?.dispatchGroup.leave()
             }
         }
     }
